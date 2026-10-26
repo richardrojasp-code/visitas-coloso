@@ -118,13 +118,31 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .photos { display: flex; gap: 8px; flex-wrap: wrap; }
 .photos img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: max(0px, env(safe-area-inset-left, 0px)); padding-right: max(0px, env(safe-area-inset-right, 0px)); }
-.tabs-in { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.tabs-in { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); }
 .tabs button { background: none; border: 0; padding: 10px 2px 12px; color: var(--muted); font-weight: 600; font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .tabs button svg { width: 22px; height: 22px; }
 .tabs button[aria-current="page"] { color: var(--sel); }
 .sticky-save { position: sticky; bottom: 78px; z-index: 4; }
 .stepnav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
 .stepnav a { flex: none; text-decoration: none; font-size: 13px; font-weight: 600; color: var(--sel); background: var(--brand-soft); border-radius: 999px; padding: 6px 11px; }
+.bars { display: flex; flex-direction: column; gap: 9px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr) 5.2em; gap: 8px; align-items: center; font-size: 14px; }
+.bar-row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.track { position: relative; height: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; }
+.fill { height: 100%; border-radius: 3px; }
+.fill.ok { background: var(--ok); } .fill.mid { background: var(--mid); } .fill.bad { background: var(--bad); } .fill.none { background: transparent; }
+.mark { position: absolute; top: -4px; bottom: -4px; border-left: 1.5px dashed var(--muted); }
+.bar-row .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.delta { font-size: 12px; font-weight: 700; margin-left: 3px; }
+.delta.up { color: var(--ok); } .delta.down { color: var(--bad); } .delta.eq { color: var(--muted); }
+td.hm { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+td.hm.ok { background: var(--ok-bg); color: var(--ok); } td.hm.mid { background: var(--mid-bg); color: var(--mid); } td.hm.bad { background: var(--bad-bg); color: var(--bad); } td.hm.none { color: var(--muted); }
+.lvl { border-left: 5px solid var(--line); padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 6px; }
+.lvl.ok { border-color: var(--ok); } .lvl.mid { border-color: var(--mid); } .lvl.bad { border-color: var(--bad); }
+.lvl h3 { font-size: 17px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 18px; height: 0; border-top-width: 3px; vertical-align: middle; margin-right: 5px; }
+.chart { width: 100%; height: auto; display: block; }
 .hidden { display: none !important; }
 @media (max-width: 430px) { .crit { grid-template-columns: minmax(0, 1fr); } .grid2 { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
@@ -148,6 +166,7 @@ html, body { margin: 0; } img { max-width: 100%; } :root { padding-top: env(safe
     <button type="button" data-tab="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendario</button>
     <button type="button" data-tab="pauta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Pauta</button>
     <button type="button" data-tab="resultados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resultados</button>
+    <button type="button" data-tab="avance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Avance</button>
   </div>
 </nav>
 
@@ -239,6 +258,7 @@ html, body { margin: 0; } img { max-width: 100%; } :root { padding-top: env(safe
   var tab = 'inicio';
   var form = null; var editingId = null; var saveMsg = null; var openVisitId = null; var confirmDel = null;
   var DRAFT_KEY = 'visita-borrador-v1';
+  var statSup = PERSONAL[0].n;
 
   function blankForm(slot) {
     var s = slot || null;
@@ -259,6 +279,7 @@ html, body { margin: 0; } img { max-width: 100%; } :root { padding-top: env(safe
     if (tab === 'inicio') h += viewInicio();
     else if (tab === 'calendario') h += viewCal();
     else if (tab === 'pauta') h += viewPauta();
+    else if (tab === 'avance') h += viewAvance();
     else h += viewRes();
     app.innerHTML = h;
   }
@@ -433,6 +454,127 @@ html, body { margin: 0; } img { max-width: 100%; } :root { padding-top: env(safe
     return h;
   }
 
+  // ---------- Avance y programa de coaching ----------
+  // El nivel se define con la última evaluación del supervisor; el historial completo muestra la evolución.
+  var NIVELES = {
+    n1: { t: 'Nivel 1 · Coaching intensivo', c: 'bad', r: 'menos de 60%', d: 'Acompañamiento en terreno cada turno (jefe de terreno o evaluador), repaso guiado del procedimiento y de las IS de sus tareas, y nueva evaluación en su turno siguiente.' },
+    n2: { t: 'Nivel 2 · Coaching dirigido', c: 'mid', r: '60% a 79%', d: 'Sesión de 30 minutos sobre sus temas más débiles, práctica de ubicar la información en el procedimiento y nueva evaluación en la próxima ronda.' },
+    n3: { t: 'Nivel 3 · Mantener y transferir', c: 'ok', r: '80% o más', d: 'Seguimiento normal según calendario. Puede apoyar como par a supervisores de nivel 1 y 2.' },
+    n0: { t: 'Sin evaluar', c: 'none', r: 'sin visitas calificadas', d: 'Programar su primera visita.' }
+  };
+  function nivelDe(x) { return x == null ? 'n0' : (x >= 0.8 ? 'n3' : (x >= 0.6 ? 'n2' : 'n1')); }
+  function histDe(n) {
+    return visitas.filter(function (v) { return v.supervisor === n; })
+      .map(function (v) { return { v: v, c: calc(v) }; })
+      .filter(function (x) { return x.c.pTot != null; })
+      .sort(function (a, b) { return a.v.fecha < b.v.fecha ? -1 : (a.v.fecha > b.v.fecha ? 1 : ((a.v.creado || '') < (b.v.creado || '') ? -1 : 1)); });
+  }
+  function temaPcts(v) { var o = {}; TEMAS.forEach(function (t) { o[t.k] = score((v.aud || {})[t.k]); }); return o; }
+  function focoDe(v) {
+    var tp = temaPcts(v);
+    return TEMAS.filter(function (t) { return tp[t.k] != null && tp[t.k] < 0.8; })
+      .sort(function (a, b) { return tp[a.k] - tp[b.k]; }).slice(0, 2)
+      .map(function (t) { return t.n + ' ' + pct(tp[t.k]); });
+  }
+  function proxEval(p) { var t = iso(today()); for (var i = 0; i < SLOTS.length; i++) if (SLOTS[i].fecha > t && SLOTS[i].turno === p.t) return SLOTS[i].fecha; return null; }
+  function resumen(p) {
+    var hs = histDe(p.n), last = hs.length ? hs[hs.length - 1] : null, first = hs.length ? hs[0] : null;
+    return { p: p, hs: hs, last: last, nivel: nivelDe(last ? last.c.pTot : null), delta: hs.length > 1 ? last.c.pTot - first.c.pTot : null, foco: last ? focoDe(last.v) : [] };
+  }
+  function deltaHtml(d) {
+    if (d == null) return '';
+    var r = Math.round(d * 100);
+    if (r === 0) return '<span class="delta eq">=</span>';
+    return '<span class="delta ' + (r > 0 ? 'up' : 'down') + '">' + (r > 0 ? '▲' : '▼') + Math.abs(r) + '</span>';
+  }
+  function barRow(name, x, extra) {
+    var e = estado(x);
+    return '<div class="bar-row"><span class="nm">' + esc(name) + '</span><div class="track"><div class="fill ' + e.c + '" style="width:' + (x == null ? 0 : Math.round(x * 100)) + '%"></div><span class="mark" style="left:60%"></span><span class="mark" style="left:80%"></span></div><span class="v">' + pct(x) + (extra || '') + '</span></div>';
+  }
+  function lineChart(hs) {
+    var W = 340, H = 200, L = 34, R = 14, T = 12, B = 30, pw = W - L - R, ph = H - T - B, n = hs.length;
+    function X(i) { return n === 1 ? L + pw / 2 : L + i * pw / (n - 1); }
+    function Y(p) { return T + (1 - p) * ph; }
+    var s = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Evolución del resultado por visita">';
+    s += '<rect x="' + L + '" y="' + Y(1) + '" width="' + pw + '" height="' + (Y(0.8) - Y(1)) + '" style="fill:var(--ok-bg)"/>';
+    s += '<rect x="' + L + '" y="' + Y(0.8) + '" width="' + pw + '" height="' + (Y(0.6) - Y(0.8)) + '" style="fill:var(--mid-bg)"/>';
+    s += '<rect x="' + L + '" y="' + Y(0.6) + '" width="' + pw + '" height="' + (Y(0) - Y(0.6)) + '" style="fill:var(--bad-bg)"/>';
+    [0, 0.6, 0.8, 1].forEach(function (g) { s += '<text x="' + (L - 6) + '" y="' + (Y(g) + 4) + '" text-anchor="end" style="fill:var(--muted);font-size:11px">' + Math.round(g * 100) + '</text>'; });
+    var step = Math.max(1, Math.ceil(n / 6));
+    hs.forEach(function (h, i) { if (i % step === 0 || i === n - 1) { var d = parseIso(h.v.fecha); s += '<text x="' + X(i) + '" y="' + (H - 10) + '" text-anchor="middle" style="fill:var(--muted);font-size:11px">' + d.getDate() + ' ' + MESES[d.getMonth()] + '</text>'; } });
+    [{ k: 'pTec', col: 'var(--steel)', w: 2, dash: '5 4' }, { k: 'pSeg', col: 'var(--amber)', w: 2, dash: '1.5 4' }, { k: 'pTot', col: 'var(--brand)', w: 3, dash: '' }].forEach(function (sr) {
+      var pts = []; hs.forEach(function (h, i) { if (h.c[sr.k] != null) pts.push(X(i).toFixed(1) + ',' + Y(h.c[sr.k]).toFixed(1)); });
+      if (pts.length > 1) s += '<polyline points="' + pts.join(' ') + '" style="fill:none;stroke:' + sr.col + ';stroke-width:' + sr.w + ';stroke-linecap:round;stroke-linejoin:round' + (sr.dash ? ';stroke-dasharray:' + sr.dash : '') + '"/>';
+      pts.forEach(function (pt) { var q = pt.split(','); s += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="' + (sr.k === 'pTot' ? 4 : 3) + '" style="fill:' + sr.col + ';stroke:var(--card);stroke-width:1.5"/>'; });
+    });
+    var lt = hs[n - 1].c.pTot, lx = X(n - 1), ly = Y(lt) - 9;
+    s += '<text x="' + Math.min(lx, W - 18) + '" y="' + Math.max(ly, 11) + '" text-anchor="middle" style="fill:var(--ink);font-size:12px;font-weight:700">' + pct(lt) + '</text>';
+    return s + '</svg>';
+  }
+  function viewAvance() {
+    var rs = PERSONAL.map(resumen);
+    var h = '';
+    // 1. Programa de coaching por nivel
+    h += '<section class="card"><p class="eyebrow">Según su última evaluación</p><h2>Programa de coaching por nivel</h2>';
+    ['n1', 'n2', 'n3', 'n0'].forEach(function (k) {
+      var g = rs.filter(function (r) { return r.nivel === k; }), N = NIVELES[k];
+      h += '<div class="lvl ' + N.c + '"><div class="tema-head"><h3>' + N.t + '</h3><span class="chip ' + N.c + '">' + g.length + '</span></div><p class="muted">' + N.r + ' · ' + N.d + '</p>';
+      g.forEach(function (r) {
+        var pe = proxEval(r.p);
+        h += '<p style="margin:0;font-size:14px"><b>' + esc(r.p.n) + '</b> (turno ' + r.p.t + ')' + (r.last ? ' · ' + pct(r.last.c.pTot) + deltaHtml(r.delta) : '') + (r.foco.length ? '<br><span class="muted">Foco: ' + esc(r.foco.join(' · ')) + '</span>' : '') + (pe ? '<br><span class="muted">Próxima evaluación posible: ' + esc(fmt(pe)) + '</span>' : '') + '</p>';
+      });
+      if (!g.length) h += '<p class="muted" style="font-style:italic">Nadie en este nivel.</p>';
+      h += '</div>';
+    });
+    h += '</section>';
+    // 2. Ranking del equipo
+    var ord = rs.slice().sort(function (a, b) { var x = a.last ? a.last.c.pTot : 2, y = b.last ? b.last.c.pTot : 2; return x - y; });
+    h += '<section class="card"><p class="eyebrow">Última evaluación · ▲▼ variación desde la primera</p><h2>Resultado por supervisor</h2><div class="bars">';
+    ord.forEach(function (r) { h += barRow(r.p.n, r.last ? r.last.c.pTot : null, deltaHtml(r.delta)); });
+    h += '</div><p class="muted">Líneas punteadas: 60% y 80%. Ordenado de menor a mayor para priorizar el coaching.</p></section>';
+    // 3. Mapa de brechas por tema
+    h += '<section class="card"><p class="eyebrow">Última evaluación</p><h2>Mapa de brechas por tema</h2><div class="tablewrap"><table><thead><tr><th>Supervisor</th>' + TEMAS.map(function (t) { return '<th style="text-align:center">' + ({ proc: 'Proc.', ejec: 'Ejec.', cal: 'Cal.', rm: 'R. mat.', cc: 'C. crít.' })[t.k] + '</th>'; }).join('') + '<th style="text-align:center">Ubica</th></tr></thead><tbody>';
+    rs.forEach(function (r) {
+      var tp = r.last ? temaPcts(r.last.v) : {}, ub = r.last ? r.last.c.pUbica : null;
+      h += '<tr><td>' + esc(r.p.n) + '</td>' + TEMAS.map(function (t) { var x = tp[t.k]; return '<td class="hm ' + estado(x).c + '">' + (x == null ? '—' : Math.round(x * 100)) + '</td>'; }).join('') + '<td class="hm ' + estado(ub).c + '">' + (ub == null ? '—' : Math.round(ub * 100)) + '</td></tr>';
+    });
+    h += '</tbody></table></div><p class="muted">Porcentaje por tema. Verde: 80% o más · Amarillo: 60% a 79% · Rojo: bajo 60%.</p></section>';
+    // 4. Evolución individual
+    var r = resumen(persona(statSup) || PERSONAL[0]);
+    h += '<section class="card"><p class="eyebrow">Evolución individual</p><label class="f">Supervisor<select id="st-sup">' + PERSONAL.map(function (p) { return '<option value="' + esc(p.n) + '"' + (p.n === r.p.n ? ' selected' : '') + '>' + esc(p.n) + ' · turno ' + p.t + '</option>'; }).join('') + '</select></label>';
+    if (!r.hs.length) h += '<p class="muted">' + esc(r.p.n) + ' aún no tiene visitas calificadas.</p>';
+    else {
+      var N = NIVELES[r.nivel], fst = r.hs[0];
+      h += '<div class="row"><span class="chip ' + N.c + '">' + N.t + '</span><span class="chip none">' + r.hs.length + (r.hs.length === 1 ? ' visita' : ' visitas') + '</span></div>';
+      h += '<div class="legend"><span><i style="border-top:3px solid var(--brand)"></i>Total</span><span><i style="border-top:2px dashed var(--steel)"></i>Técnico</span><span><i style="border-top:2px dotted var(--amber)"></i>Seguridad</span></div>';
+      h += lineChart(r.hs);
+      h += '<p class="eyebrow" style="margin-top:6px">Por tema · última visita' + (r.hs.length > 1 ? ' (▲▼ frente a la primera)' : '') + '</p><div class="bars">';
+      var tl = temaPcts(r.last.v), tf = temaPcts(fst.v);
+      TEMAS.forEach(function (t) { h += barRow(t.n, tl[t.k], r.hs.length > 1 && tl[t.k] != null && tf[t.k] != null ? deltaHtml(tl[t.k] - tf[t.k]) : ''); });
+      h += barRow('Sabe ubicar', r.last.c.pUbica, r.hs.length > 1 && r.last.c.pUbica != null && fst.c.pUbica != null ? deltaHtml(r.last.c.pUbica - fst.c.pUbica) : '');
+      h += '</div>';
+      if (r.last.v.brecha) h += '<p style="margin:0"><b>Última brecha:</b> ' + esc(r.last.v.brecha) + '</p>';
+    }
+    h += '</section>';
+    // 5. Exportar
+    h += '<section class="card"><p class="eyebrow">Respaldo</p><h2>Estadística en Excel</h2><p class="muted">Descarga un archivo CSV que abre en Excel: resumen por supervisor y detalle de todas las visitas.</p><button class="btn sec" type="button" data-act="csv"' + (visitas.length ? '' : ' disabled') + '>Descargar estadística</button></section>';
+    return h;
+  }
+  function descargarCsv() {
+    function c(x) { var s = String(x == null ? '' : x); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+    function n(x) { return x == null ? '' : Math.round(x * 100); }
+    var L = ['RESUMEN POR SUPERVISOR', ['Supervisor', 'Turno', 'Visitas', 'Primera %', 'Última %', 'Variación', 'Nivel', 'Foco de coaching'].join(';')];
+    PERSONAL.forEach(function (p) { var r = resumen(p); L.push([p.n, p.t, r.hs.length, r.hs.length ? n(r.hs[0].c.pTot) : '', r.last ? n(r.last.c.pTot) : '', r.delta == null ? '' : Math.round(r.delta * 100), NIVELES[r.nivel].t, r.foco.join(' / ')].map(c).join(';')); });
+    L.push('', 'DETALLE DE VISITAS', ['Fecha', 'Turno', 'Etapa', 'Supervisor', 'Evaluador', 'Tarea', 'Procedimiento'].concat(TEMAS.map(function (t) { return t.n + ' %'; }), ['Técnico %', 'Seguridad %', 'Total %', 'Sabe ubicar %', 'Brecha', 'Acción']).join(';'));
+    visitas.slice().sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; }).forEach(function (v) {
+      var k = calc(v), tp = temaPcts(v);
+      L.push([v.fecha, v.turno, v.etapa, v.supervisor, v.evaluador, v.tarea, v.procedimiento].concat(TEMAS.map(function (t) { return n(tp[t.k]); }), [n(k.pTec), n(k.pSeg), n(k.pTot), n(k.pUbica), v.brecha, v.brecha ? (v.accionEstado === 'cerrada' ? 'Cerrada' : 'Abierta') : '']).map(c).join(';'));
+    });
+    var blob = new Blob(['﻿' + L.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Estadistica supervisores Puerto Coloso ' + iso(today()) + '.csv';
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
   // ---------- Eventos ----------
   document.querySelector('.tabs').addEventListener('click', function (e) { var b = e.target.closest('button[data-tab]'); if (!b) return; tab = b.dataset.tab; openVisitId = null; saveMsg = null; render(); window.scrollTo(0, 0); });
   app.addEventListener('click', function (e) {
@@ -455,6 +597,7 @@ html, body { margin: 0; } img { max-width: 100%; } :root { padding-top: env(safe
       saveMsg = null; saveDraft(); var y2 = window.scrollY; render(); window.scrollTo(0, y2);
     }
     else if (a === 'save') save();
+    else if (a === 'csv') descargarCsv();
     else if (a === 'open') { openVisitId = b.dataset.id; confirmDel = null; tab = 'resultados'; render(); window.scrollTo(0, 0); }
     else if (a === 'close') { openVisitId = null; render(); }
     else if (a === 'edit') { var vv = visitas.filter(function (x) { return x.id === b.dataset.id; })[0]; if (vv) { form = JSON.parse(JSON.stringify(vv)); delete form.id; delete form._owner; editingId = vv.id; editingOwner = vv._owner; saveMsg = null; saveDraft(); tab = 'pauta'; render(); window.scrollTo(0, 0); } }
@@ -474,6 +617,7 @@ html, body { margin: 0; } img { max-width: 100%; } :root { padding-top: env(safe
   app.addEventListener('change', function (e) {
     var el = e.target;
     if (el.id === 'f-sup' || el.id === 'f-fecha') { var y = window.scrollY; render(); window.scrollTo(0, y); }
+    else if (el.id === 'st-sup') { statSup = el.value; var y3 = window.scrollY; render(); window.scrollTo(0, y3); }
 
   });
 
