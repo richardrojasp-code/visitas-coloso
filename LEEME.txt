@@ -1,0 +1,31 @@
+APP VISITAS EN TERRENO - PUERTO COLOSO
+United Sistema de Tuberías · Contrato MEL 9100002468 · Administrador: Richard Rojas
+
+LINKS
+- App (para todos):      https://richardrojasp-code.github.io/visitas-coloso/
+- Código (GitHub):       https://github.com/richardrojasp-code/visitas-coloso
+- Base de datos:         https://supabase.com/dashboard/project/kzygeinidxpzoajqhifb
+                         (organización "United Puerto Coloso", proyecto "visitas-coloso")
+- Código QR:             https://claude.ai/artifact/XmN3E4puKBoMpsh5X48Fpj
+
+ARCHIVOS DE ESTA CARPETA
+- index.html            La app completa: personal, evaluadores, calendario (inicio 28-10-2026, 18 semanas,
+                        miércoles y jueves 10:00 a 12:00), pauta, resultados y pestaña Avance (coaching por nivel).
+- config.js             Dirección y clave pública de Supabase (es pública por diseño).
+- supabase-schema.sql   Estructura de la base de datos y funciones de administrador.
+- manifest.webmanifest, icon-192.png, icon-512.png, logo-united.png   Ícono y logo de la app.
+- .git                  Conexión con GitHub (no borrar).
+
+CÓMO HACER MEJORAS
+1. Pedirle a Claude el cambio indicando que el proyecto está en C:\Users\User\CLAUDE\visitas-coloso.
+2. Claude edita index.html, lo prueba y publica con:  git add -A ; git commit ; git push
+3. GitHub Pages actualiza la app en 1 a 2 minutos, en el mismo link (el QR no cambia).
+
+IMPORTANTE
+- Supabase gratuito pausa el proyecto tras 7 días sin uso: si la app no carga datos, entrar a Supabase
+  y presionar "Restore project".
+- Desactivar el Traductor de Chrome en Supabase (rompe el panel).
+- Clave de administrador: solo la conoce Richard. Para cambiarla, en Supabase > SQL Editor:
+    insert into public.admin_config (id, clave_hash)
+    values (1, extensions.crypt('NUEVA_CLAVE', extensions.gen_salt('bf')))
+    on conflict (id) do update set clave_hash = excluded.clave_hash;
